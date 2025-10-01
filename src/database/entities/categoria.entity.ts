@@ -4,17 +4,13 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  ManyToOne,
   OneToMany,
-  JoinColumn,
   Index,
 } from 'typeorm';
 import { Producto } from './producto.entity';
 
 @Entity('categoria')
 @Index('IX_categorias_nombre', ['nombre'])
-@Index('IX_categorias_activo', ['estaActivo'])
-@Index('IX_categorias_padre', ['categoriaPadreId'])
 export class Categoria {
   @PrimaryGeneratedColumn({ name: 'id_categoria' })
   idCategoria: number;
@@ -37,13 +33,6 @@ export class Categoria {
   descripcion: string;
 
   @Column({
-    name: 'categoria_padre_id',
-    type: 'int',
-    nullable: true,
-  })
-  categoriaPadreId: number;
-
-  @Column({
     name: 'imagen_url',
     type: 'varchar',
     length: 500,
@@ -57,13 +46,6 @@ export class Categoria {
     default: true,
   })
   estaActivo: boolean;
-
-  @Column({
-    name: 'orden',
-    type: 'int',
-    default: 0,
-  })
-  orden: number;
 
   @CreateDateColumn({
     name: 'fecha_creacion',
@@ -81,16 +63,6 @@ export class Categoria {
   fechaActualizacion: Date;
 
   // Relaciones
-  @ManyToOne(() => Categoria, (categoria) => categoria.subcategorias, {
-    onDelete: 'NO ACTION',
-  })
-  @JoinColumn({ name: 'categoria_padre_id' })
-  categoriaPadre: Categoria;
-
-  @OneToMany(() => Categoria, (categoria) => categoria.categoriaPadre)
-  subcategorias: Categoria[];
-
   @OneToMany(() => Producto, (producto) => producto.categoria)
   productos: Producto[];
 }
-

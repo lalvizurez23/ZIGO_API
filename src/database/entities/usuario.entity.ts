@@ -7,12 +7,11 @@ import {
   OneToMany,
   Index,
 } from 'typeorm';
-import { UsuarioRol } from './usuario-rol.entity.js';
-import { LogsSesion } from './logs-sesion.entity.js';
+import { Carrito } from './carrito.entity';
+import { Pedido } from './pedido.entity';
 
 @Entity('usuario')
 @Index('IX_usuarios_email', ['email'])
-@Index('IX_usuarios_activo', ['estaActivo'])
 export class Usuario {
   @PrimaryGeneratedColumn({ name: 'id_usuario' })
   idUsuario: number;
@@ -27,12 +26,12 @@ export class Usuario {
   email: string;
 
   @Column({
-    name: 'password_encryptado',
+    name: 'password',
     type: 'varchar',
     length: 255,
     nullable: false,
   })
-  passwordEncryptado: string;
+  password: string;
 
   @Column({
     name: 'nombre',
@@ -59,18 +58,19 @@ export class Usuario {
   telefono: string;
 
   @Column({
+    name: 'direccion',
+    type: 'varchar',
+    length: 500,
+    nullable: true,
+  })
+  direccion: string;
+
+  @Column({
     name: 'esta_activo',
     type: 'boolean',
     default: true,
   })
   estaActivo: boolean;
-
-  @Column({
-    name: 'fecha_ultimo_acceso',
-    type: 'timestamp',
-    nullable: true,
-  })
-  fechaUltimoAcceso: Date;
 
   @CreateDateColumn({
     name: 'fecha_creacion',
@@ -88,10 +88,9 @@ export class Usuario {
   fechaActualizacion: Date;
 
   // Relaciones
-  @OneToMany(() => UsuarioRol, (usuarioRol) => usuarioRol.usuario)
-  usuarioRoles: UsuarioRol[];
+  @OneToMany(() => Carrito, (carrito) => carrito.usuario)
+  carritos: Carrito[];
 
-  @OneToMany(() => LogsSesion, (logsSesion) => logsSesion.usuario)
-  logsSesion: LogsSesion[];
+  @OneToMany(() => Pedido, (pedido) => pedido.usuario)
+  pedidos: Pedido[];
 }
-

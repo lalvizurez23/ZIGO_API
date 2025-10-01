@@ -11,7 +11,6 @@ import { Producto } from './producto.entity';
 
 @Entity('detalle_pedido')
 @Index('IX_detalle_pedido', ['idPedido'])
-@Index('IX_detalle_producto', ['idProducto'])
 export class DetallePedido {
   @PrimaryGeneratedColumn({ name: 'id_detalle_pedido' })
   idDetallePedido: number;
@@ -39,15 +38,6 @@ export class DetallePedido {
   precioUnitario: number;
 
   @Column({
-    name: 'descuento',
-    type: 'decimal',
-    precision: 18,
-    scale: 2,
-    default: 0,
-  })
-  descuento: number;
-
-  @Column({
     name: 'subtotal',
     type: 'decimal',
     precision: 18,
@@ -55,22 +45,6 @@ export class DetallePedido {
     nullable: false,
   })
   subtotal: number;
-
-  @Column({
-    name: 'nombre_producto',
-    type: 'varchar',
-    length: 200,
-    nullable: false,
-  })
-  nombreProducto: string;
-
-  @Column({
-    name: 'codigo_sku',
-    type: 'varchar',
-    length: 100,
-    nullable: false,
-  })
-  codigoSku: string;
 
   // Relaciones
   @ManyToOne(() => Pedido, (pedido) => pedido.detalles, {
@@ -85,4 +59,3 @@ export class DetallePedido {
   @JoinColumn({ name: 'id_producto' })
   producto: Producto;
 }
-
