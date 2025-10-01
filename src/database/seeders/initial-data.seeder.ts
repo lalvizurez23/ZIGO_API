@@ -16,12 +16,13 @@ export async function seedInitialData(dataSource: DataSource) {
   // ============================================
   console.log('\n👤 Creando usuarios de prueba...');
 
-  const passwordHash = await bcrypt.hash('Admin123', 10);
+  const adminPasswordHash = await bcrypt.hash('Admin123', 10);
+  const clientePasswordHash = await bcrypt.hash('Usuario123', 10);
 
   const usuarios = [
     {
       email: 'admin@ecommerce.com',
-      password: passwordHash,
+      password: adminPasswordHash,
       nombre: 'Admin',
       apellido: 'Sistema',
       telefono: '555-0100',
@@ -30,7 +31,7 @@ export async function seedInitialData(dataSource: DataSource) {
     },
     {
       email: 'usuario@ejemplo.com',
-      password: passwordHash,
+      password: clientePasswordHash,
       nombre: 'Juan',
       apellido: 'Pérez',
       telefono: '555-0101',
@@ -218,7 +219,6 @@ export async function seedInitialData(dataSource: DataSource) {
   console.log(`   - ${categorias.length} categorías creadas`);
   console.log(`   - ${productos.length} productos creados`);
   console.log('\n🔑 Credenciales de acceso:');
-  console.log('   Email: admin@ecommerce.com');
-  console.log('   Email: usuario@ejemplo.com');
-  console.log('   Password (ambos): Admin123\n');
+  console.log('   👨‍💼 Admin - Email: admin@ecommerce.com | Password: Admin123');
+  console.log('   👤 Cliente - Email: usuario@ejemplo.com | Password: Usuario123\n');
 }

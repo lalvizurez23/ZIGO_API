@@ -57,15 +57,14 @@ npm run seed
 ```
 
 **📊 Resultado esperado:**
-- ✅ 6 tablas creadas (rol, permiso, rol_permiso, usuario, usuario_rol, logs_sesion)
-- ✅ 5 roles insertados
-- ✅ 20 permisos insertados  
-- ✅ 3 usuarios de prueba creados
+- ✅ 7 tablas creadas (usuario, categoria, producto, carrito, carrito_item, pedido, detalle_pedido)
+- ✅ 2 usuarios creados
+- ✅ 4 categorías creadas
+- ✅ 10 productos de ejemplo
 
 **🔑 Credenciales de acceso:**
-- Email: `admin@ecommerce.com` / Password: `Admin123` (SUPER_ADMIN)
-- Email: `vendedor@ecommerce.com` / Password: `Admin123` (VENDEDOR)
-- Email: `clienteprueba@gmail.com` / Password: `Admin123` (CLIENTE)
+- 👨‍💼 **Admin:** `admin@ecommerce.com` / Password: `Admin123`
+- 👤 **Cliente:** `usuario@ejemplo.com` / Password: `Usuario123`
 
 ---
 
