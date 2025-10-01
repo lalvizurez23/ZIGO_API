@@ -7,7 +7,7 @@ import {
   OneToMany,
   Index,
 } from 'typeorm';
-import { Producto } from './producto.entity';
+import type { Producto } from './producto.entity';
 
 @Entity('categoria')
 @Index('IX_categorias_nombre', ['nombre'])
@@ -63,6 +63,6 @@ export class Categoria {
   fechaActualizacion: Date;
 
   // Relaciones
-  @OneToMany(() => Producto, (producto) => producto.categoria)
+  @OneToMany('Producto', 'categoria')
   productos: Producto[];
 }

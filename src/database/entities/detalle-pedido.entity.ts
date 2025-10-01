@@ -6,8 +6,8 @@ import {
   JoinColumn,
   Index,
 } from 'typeorm';
-import { Pedido } from './pedido.entity';
-import { Producto } from './producto.entity';
+import type { Pedido } from './pedido.entity';
+import type { Producto } from './producto.entity';
 
 @Entity('detalle_pedido')
 @Index('IX_detalle_pedido', ['idPedido'])
@@ -47,13 +47,13 @@ export class DetallePedido {
   subtotal: number;
 
   // Relaciones
-  @ManyToOne(() => Pedido, (pedido) => pedido.detalles, {
+  @ManyToOne('Pedido', 'detalles', {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'id_pedido' })
   pedido: Pedido;
 
-  @ManyToOne(() => Producto, (producto) => producto.detallesPedido, {
+  @ManyToOne('Producto', 'detallesPedido', {
     onDelete: 'NO ACTION',
   })
   @JoinColumn({ name: 'id_producto' })
