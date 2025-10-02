@@ -32,8 +32,7 @@ export class CarritoItem {
 
   @CreateDateColumn({
     name: 'fecha_agregado',
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
+    type: 'datetime',
   })
   fechaAgregado: Date;
 

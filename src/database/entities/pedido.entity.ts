@@ -80,8 +80,7 @@ export class Pedido {
 
   @CreateDateColumn({
     name: 'fecha_pedido',
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
+    type: 'datetime',
   })
   fechaPedido: Date;
 

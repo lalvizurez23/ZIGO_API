@@ -165,7 +165,10 @@ Categoria
 ```typescript
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Usuario, Producto, Carrito, Pedido } from '@/database/entities';
+import { Usuario } from '../../database/entities/usuario.entity';
+import { Producto } from '../../database/entities/producto.entity';
+import { Carrito } from '../../database/entities/carrito.entity';
+import { Pedido } from '../../database/entities/pedido.entity';
 
 @Module({
   imports: [
@@ -174,6 +177,8 @@ import { Usuario, Producto, Carrito, Pedido } from '@/database/entities';
   // ...
 })
 export class EcommerceModule {}
+
+// Nota: Importaciones directas - sin archivos index.ts
 ```
 
 ---

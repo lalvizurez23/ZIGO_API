@@ -73,16 +73,13 @@ export class Producto {
 
   @CreateDateColumn({
     name: 'fecha_creacion',
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
+    type: 'datetime',
   })
   fechaCreacion: Date;
 
   @UpdateDateColumn({
     name: 'fecha_actualizacion',
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
-    onUpdate: 'CURRENT_TIMESTAMP',
+    type: 'datetime',
   })
   fechaActualizacion: Date;
 
