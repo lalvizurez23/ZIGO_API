@@ -182,7 +182,6 @@ export class AuthService {
     try {
       // Verificar que el token actual no esté en blacklist
       const isBlacklisted = await this.tokenBlacklistService.isBlacklisted(currentToken);
-      console.log('isBlacklisted', isBlacklisted);
       if (isBlacklisted) {
         throw new UnauthorizedException('Token ha sido revocado');
       }

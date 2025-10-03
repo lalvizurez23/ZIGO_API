@@ -74,7 +74,6 @@ export class TokenBlacklistService {
    */
   async isBlacklisted(token: string): Promise<boolean> {
     try {
-      console.log('token', token);
       const key = `blacklist:${token}`;
       const result = await this.redisClient.get(key);
       return result !== null;

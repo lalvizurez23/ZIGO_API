@@ -1,8 +1,8 @@
-# 🔐 Módulo de Autenticación
+# Módulo de Autenticación
 
 Este módulo maneja toda la lógica de autenticación y autorización del sistema usando JWT (JSON Web Tokens).
 
-## 📋 Endpoints Disponibles
+## Endpoints Disponibles
 
 ### 1. Registro de Usuario
 **POST** `/auth/register`
@@ -95,7 +95,6 @@ export class MiRecursoController {
   @UseGuards(AuthGuard('jwt'))
   getMiRecurso(@GetUser() user: Usuario) {
     // El decorador @GetUser() inyecta el usuario autenticado
-    console.log(user.email);
     return { mensaje: 'Recurso protegido', usuario: user.email };
   }
 }

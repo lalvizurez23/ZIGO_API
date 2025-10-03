@@ -1,17 +1,17 @@
-# ⚙️ Configuración de la Aplicación
+# Configuración de la Aplicación
 
-## 🔐 Validación de Variables de Entorno
+## Validación de Variables de Entorno
 
 Este módulo asegura que **todas las variables de entorno requeridas estén presentes** antes de iniciar la aplicación.
 
-### 🚨 Principio de Seguridad
+### Principio de Seguridad
 
-**❌ MAL - Valores por defecto hardcodeados:**
+**MAL - Valores por defecto hardcodeados:**
 ```typescript
 const secret = config.get('JWT_SECRET') || 'default-secret-123';  // ¡NUNCA!
 ```
 
-**✅ BIEN - Fallar rápidamente si falta:**
+**BIEN - Fallar rápidamente si falta:**
 ```typescript
 const secret = config.get('JWT_SECRET');
 if (!secret) {
@@ -19,7 +19,7 @@ if (!secret) {
 }
 ```
 
-### 📋 Variables Requeridas
+### Variables Requeridas
 
 La aplicación **NO iniciará** si faltan estas variables:
 

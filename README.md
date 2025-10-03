@@ -2,14 +2,14 @@
 
 Backend desarrollado con NestJS y TypeORM para gestión de base de datos.
 
-## 📋 Requisitos Previos
+## Requisitos Previos
 
 - Node.js >= 20.11
 - npm o yarn
 - MySQL o PostgreSQL
 - Redis (para blacklist de tokens)
 
-## 🚀 Instalación
+## Instalación
 
 1. Instalar dependencias:
 ```bash
@@ -56,9 +56,9 @@ REDIS_DB=0
 REDIS_TTL=86400
 ```
 
-**⚠️ CRÍTICO:** `JWT_SECRET`, `JWT_EXPIRATION` y las variables de `REDIS` son **REQUERIDAS**. La aplicación no iniciará sin ellas por seguridad.
+**CRÍTICO:** `JWT_SECRET`, `JWT_EXPIRATION` y las variables de `REDIS` son **REQUERIDAS**. La aplicación no iniciará sin ellas por seguridad.
 
-## ⚙️ Configuración de Base de Datos
+## Configuración de Base de Datos
 
 Tienes **2 opciones** para inicializar la base de datos:
 
@@ -71,41 +71,41 @@ Este script crea la base de datos, tablas y datos iniciales automáticamente.
 
 ### Opción B: Usar Migraciones + Seeders (Recomendado para desarrollo)
 
-**⚠️ Orden de ejecución correcto:**
+**Orden de ejecución correcto:**
 
 Después de instalar las dependencias y configurar el `.env`, sigue estos pasos **en orden**:
 
-### 1️⃣ Crear la base de datos
+### 1. Crear la base de datos
 Crea manualmente la base de datos en MySQL/PostgreSQL:
 ```sql
 CREATE DATABASE nombre_base_datos;
 ```
 
-### 2️⃣ Ejecutar las migraciones
+### 2. Ejecutar las migraciones
 Las migraciones crean todas las tablas en la base de datos:
 ```bash
 npm run migration:run
 ```
 
-### 3️⃣ Ejecutar el seeder
+### 3. Ejecutar el seeder
 El seeder inserta los datos iniciales (roles, permisos, usuarios de prueba):
 ```bash
 npm run seed
 ```
 
-**📊 Resultado esperado:**
-- ✅ 7 tablas creadas (usuario, categoria, producto, carrito, carrito_item, pedido, detalle_pedido)
-- ✅ 2 usuarios creados
-- ✅ 4 categorías creadas
-- ✅ 10 productos de ejemplo
+**Resultado esperado:**
+- 7 tablas creadas (usuario, categoria, producto, carrito, carrito_item, pedido, detalle_pedido)
+- 2 usuarios creados
+- 4 categorías creadas
+- 10 productos de ejemplo
 
-**🔑 Credenciales de acceso:**
-- 👨‍💼 **Admin:** `admin@ecommerce.com` / Password: `Admin123`
-- 👤 **Cliente:** `usuario@ejemplo.com` / Password: `Usuario123`
+**Credenciales de acceso:**
+- **Admin:** `admin@ecommerce.com` / Password: `Admin123`
+- **Cliente:** `usuario@ejemplo.com` / Password: `Usuario123`
 
 ---
 
-## 🏃‍♂️ Ejecutar la aplicación
+## Ejecutar la aplicación
 
 ### Modo desarrollo
 ```bash
@@ -118,7 +118,7 @@ npm run build
 npm run start:prod
 ```
 
-## 🗄️ Migraciones de Base de Datos
+## Migraciones de Base de Datos
 
 ### Crear una migración
 ```bash
@@ -140,7 +140,7 @@ npm run migration:run
 npm run migration:revert
 ```
 
-## 🌱 Seeders - Datos Iniciales
+## Seeders - Datos Iniciales
 
 El seeder se ejecuta **después** de las migraciones para insertar datos iniciales.
 
@@ -148,9 +148,9 @@ El seeder se ejecuta **después** de las migraciones para insertar datos inicial
 npm run seed
 ```
 
-**⚠️ IMPORTANTE:** Debes ejecutar `npm run migration:run` primero para crear las tablas antes de ejecutar el seeder.
+**IMPORTANTE:** Debes ejecutar `npm run migration:run` primero para crear las tablas antes de ejecutar el seeder.
 
-## 📁 Estructura del Proyecto
+## Estructura del Proyecto
 
 ```
 src/
@@ -200,9 +200,9 @@ src/
 ### Generales
 - `GET /` - Mensaje de bienvenida
 
-**📮 Colección de Postman:** Importa `postman_collection.json` y `postman_environment.json` para probar todos los endpoints.
+**Colección de Postman:** Importa `postman_collection.json` y `postman_environment.json` para probar todos los endpoints.
 
-## 🛠️ Tecnologías
+## Tecnologías
 
 - **NestJS 11** - Framework backend
 - **TypeORM 0.3** - ORM para bases de datos
@@ -213,13 +213,13 @@ src/
 - **bcrypt** - Encriptación de contraseñas
 - **class-validator** - Validación de DTOs
 
-## 🔐 Sistema de Autenticación con Redis
+## Sistema de Autenticación con Redis
 
-### 🎯 **Lógica de Tokens Renovados y Blacklist**
+### Lógica de Tokens Renovados y Blacklist
 
 El sistema implementa un mecanismo inteligente de renovación de tokens que **NO almacena tokens expirados** en la base de datos, utilizando Redis para una gestión eficiente de la blacklist.
 
-#### **🔄 Flujo de Renovación Automática de Tokens**
+#### Flujo de Renovación Automática de Tokens
 
 1. **Login Inicial**
    ```json
@@ -301,16 +301,16 @@ JWT_RENEWAL_EXTENSION=10m
 blacklist:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... → "blacklisted" (TTL: 24h)
 ```
 
-#### **🎯 Beneficios del Sistema**
+#### Beneficios del Sistema
 
-1. **✅ No Almacena Tokens Expirados**: Redis elimina automáticamente tokens expirados
-2. **✅ Renovación Inteligente**: Solo extiende tiempo, no genera tokens innecesarios
-3. **✅ Blacklist Inmediata**: Tokens anteriores se invalidan al renovar
-4. **✅ Validación Prioritaria**: Blacklist se verifica ANTES que la validación JWT
-5. **✅ Escalabilidad**: Redis es mucho más rápido que consultas a BD
-6. **✅ Configuración Flexible**: Tiempos parametrizables en `.env`
+1. **No Almacena Tokens Expirados**: Redis elimina automáticamente tokens expirados
+2. **Renovación Inteligente**: Solo extiende tiempo, no genera tokens innecesarios
+3. **Blacklist Inmediata**: Tokens anteriores se invalidan al renovar
+4. **Validación Prioritaria**: Blacklist se verifica ANTES que la validación JWT
+5. **Escalabilidad**: Redis es mucho más rápido que consultas a BD
+6. **Configuración Flexible**: Tiempos parametrizables en `.env`
 
-#### **📱 Flujo Recomendado para el Cliente**
+#### Flujo Recomendado para el Cliente
 
 ```javascript
 // 1. Login inicial
@@ -331,7 +331,7 @@ apiClient.interceptors.response.use(
       localStorage.setItem('access_token', newToken);
       // Actualizar header para futuras requests
       apiClient.defaults.headers['Authorization'] = `Bearer ${newToken}`;
-      console.log('✅ Token renovado automáticamente');
+      console.log('Token renovado automáticamente');
     }
     return response;
   },
@@ -353,7 +353,7 @@ const productos = await apiClient.get('/productos');
 await apiClient.post('/auth/logout', { refreshToken: accessToken });
 ```
 
-#### **🔧 Configuración de Redis**
+#### Configuración de Redis
 
 **Instalación con Docker:**
 ```bash
@@ -365,13 +365,13 @@ docker run -d -p 6379:6379 redis:alpine
 docker ps | findstr redis
 ```
 
-## 📝 Notas Importantes
+## Notas Importantes
 
 ### Seguridad
-- ✅ **JWT_SECRET es requerido** - La app falla si no está configurado (no usa valores por defecto)
-- ✅ Contraseñas hasheadas con bcrypt (10 rounds)
-- ✅ Validación de variables de entorno en el inicio
-- ✅ No se exponen datos sensibles en las respuestas (password, IDs internos)
+- **JWT_SECRET es requerido** - La app falla si no está configurado (no usa valores por defecto)
+- Contraseñas hasheadas con bcrypt (10 rounds)
+- Validación de variables de entorno en el inicio
+- No se exponen datos sensibles en las respuestas (password, IDs internos)
 
 ### Base de Datos
 - Las migraciones se encuentran en `src/database/migrations/`
@@ -383,7 +383,7 @@ docker ps | findstr redis
 - No usamos archivos `index.ts` intermedios
 - Importaciones directas para mejor control y debugging
 
-## 🔄 Flujo de Trabajo Completo
+## Flujo de Trabajo Completo
 
 ```bash
 # 1. Instalar dependencias
