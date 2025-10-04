@@ -3,18 +3,20 @@ import * as bcrypt from 'bcrypt';
 import { Usuario } from '../entities/usuario.entity';
 import { Categoria } from '../entities/categoria.entity';
 import { Producto } from '../entities/producto.entity';
+import { Carrito } from '../entities/carrito.entity';
 
 export async function seedInitialData(dataSource: DataSource) {
-  console.log('🌱 Iniciando seeding de datos iniciales...');
+  console.log('Iniciando seeding de datos iniciales...');
 
   const usuarioRepository = dataSource.getRepository(Usuario);
   const categoriaRepository = dataSource.getRepository(Categoria);
   const productoRepository = dataSource.getRepository(Producto);
+  const carritoRepository = dataSource.getRepository(Carrito);
 
   // ============================================
   // 1. CREAR USUARIOS DE PRUEBA
   // ============================================
-  console.log('\n👤 Creando usuarios de prueba...');
+  console.log('\nCreando usuarios de prueba...');
 
   const adminPasswordHash = await bcrypt.hash('Admin123', 10);
   const clientePasswordHash = await bcrypt.hash('Usuario123', 10);
@@ -40,22 +42,49 @@ export async function seedInitialData(dataSource: DataSource) {
     },
   ];
 
+  const usuariosCreados = [];
   for (const usuarioData of usuarios) {
     const existingUsuario = await usuarioRepository.findOne({
       where: { email: usuarioData.email },
     });
     if (!existingUsuario) {
-      await usuarioRepository.save(usuarioData);
-      console.log(`  ✅ Usuario creado: ${usuarioData.email}`);
+      const usuario = await usuarioRepository.save(usuarioData);
+      usuariosCreados.push(usuario);
+      console.log(`  Usuario creado: ${usuarioData.email}`);
     } else {
-      console.log(`  ⏭️  Usuario ya existe: ${usuarioData.email}`);
+      usuariosCreados.push(existingUsuario);
+      console.log(`  Usuario ya existe: ${usuarioData.email}`);
     }
   }
 
   // ============================================
-  // 2. CREAR CATEGORÍAS
+  // 2. CREAR CARRITOS AUTOMÁTICAMENTE PARA CADA USUARIO
   // ============================================
-  console.log('\n📁 Creando categorías...');
+  console.log('\nCreando carritos para usuarios...');
+
+  for (const usuario of usuariosCreados) {
+    const existingCarrito = await carritoRepository.findOne({
+      where: { 
+        idUsuario: usuario.idUsuario,
+        estaActivo: true 
+      },
+    });
+    
+    if (!existingCarrito) {
+      const carrito = await carritoRepository.save({
+        idUsuario: usuario.idUsuario,
+        estaActivo: true,
+      });
+      console.log(`  Carrito creado para usuario: ${usuario.email} (ID: ${carrito.idCarrito})`);
+    } else {
+      console.log(`  Carrito ya existe para usuario: ${usuario.email}`);
+    }
+  }
+
+  // ============================================
+  // 3. CREAR CATEGORÍAS
+  // ============================================
+  console.log('\nCreando categorías...');
 
   const categorias = [
     {
@@ -92,17 +121,17 @@ export async function seedInitialData(dataSource: DataSource) {
     if (!existingCategoria) {
       const categoria = await categoriaRepository.save(categoriaData);
       categoriasCreadas.push(categoria);
-      console.log(`  ✅ Categoría creada: ${categoriaData.nombre}`);
+      console.log(`  Categoría creada: ${categoriaData.nombre}`);
     } else {
       categoriasCreadas.push(existingCategoria);
-      console.log(`  ⏭️  Categoría ya existe: ${categoriaData.nombre}`);
+      console.log(`  Categoría ya existe: ${categoriaData.nombre}`);
     }
   }
 
   // ============================================
-  // 3. CREAR PRODUCTOS
+  // 4. CREAR PRODUCTOS
   // ============================================
-  console.log('\n📦 Creando productos...');
+  console.log('\nCreando productos...');
 
   const productos = [
     // Electrónica
@@ -207,18 +236,18 @@ export async function seedInitialData(dataSource: DataSource) {
     });
     if (!existingProducto) {
       await productoRepository.save(productoData);
-      console.log(`  ✅ Producto creado: ${productoData.nombre}`);
+      console.log(`  Producto creado: ${productoData.nombre}`);
     } else {
-      console.log(`  ⏭️  Producto ya existe: ${productoData.nombre}`);
+      console.log(`  Producto ya existe: ${productoData.nombre}`);
     }
   }
 
-  console.log('\n✅ ¡Seeding completado exitosamente!\n');
-  console.log('📊 Resumen:');
+  console.log('\nSeeding completado exitosamente!\n');
+  console.log('Resumen:');
   console.log(`   - ${usuarios.length} usuarios creados`);
   console.log(`   - ${categorias.length} categorías creadas`);
   console.log(`   - ${productos.length} productos creados`);
-  console.log('\n🔑 Credenciales de acceso:');
-  console.log('   👨‍💼 Admin - Email: admin@ecommerce.com | Password: Admin123');
-  console.log('   👤 Cliente - Email: usuario@ejemplo.com | Password: Usuario123\n');
+  console.log('\nCredenciales de acceso:');
+  console.log('   Admin - Email: admin@ecommerce.com | Password: Admin123');
+  console.log('   Cliente - Email: usuario@ejemplo.com | Password: Usuario123\n');
 }

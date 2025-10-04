@@ -1,0 +1,682 @@
+{
+  "info": {
+    "name": "ZIGO E-commerce API - Complete",
+    "_postman_id": "zigo-ecommerce-2025-complete",
+    "description": "API REST completa para E-commerce - Prueba Técnica ZIGO con Redis y JWT renovación",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "🔐 Auth",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.environment.set('access_token', jsonData.accessToken);",
+                  "    pm.environment.set('user_email', jsonData.user.email);",
+                  "    console.log('✅ Token guardado:', jsonData.accessToken);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"nuevo@ejemplo.com\",\n  \"password\": \"Password123\",\n  \"nombre\": \"María\",\n  \"apellido\": \"González\",\n  \"telefono\": \"555-9876\",\n  \"direccion\": \"Av. Principal 456\"\n}"
+            },
+            "url": {"raw": "{{base_url}}/auth/register", "host": ["{{base_url}}"], "path": ["auth", "register"]},
+            "description": "Registra un nuevo usuario. Retorna accessToken, refreshToken y perfil."
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.environment.set('access_token', jsonData.accessToken);",
+                  "    pm.environment.set('user_email', jsonData.user.email);",
+                  "    console.log('✅ Login exitoso! Token guardado');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"usuario@ejemplo.com\",\n  \"password\": \"Usuario123\"\n}"
+            },
+            "url": {"raw": "{{base_url}}/auth/login", "host": ["{{base_url}}"], "path": ["auth", "login"]},
+            "description": "Autentica un usuario. Retorna accessToken, refreshToken y perfil."
+          }
+        },
+        {
+          "name": "Login Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.environment.set('access_token', jsonData.accessToken);",
+                  "    pm.environment.set('user_email', jsonData.user.email);",
+                  "    console.log('✅ Login Admin exitoso!');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@ecommerce.com\",\n  \"password\": \"Admin123\"\n}"
+            },
+            "url": {"raw": "{{base_url}}/auth/login", "host": ["{{base_url}}"], "path": ["auth", "login"]},
+            "description": "Login con usuario Admin (creado por seeders)"
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{access_token}}\"\n}"
+            },
+            "url": {"raw": "{{base_url}}/auth/logout", "host": ["{{base_url}}"], "path": ["auth", "logout"]},
+            "description": "Cierra sesión revocando el token actual (lo agrega a blacklist)"
+          }
+        },
+        {
+          "name": "Logout All Devices",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/auth/logout-all", "host": ["{{base_url}}"], "path": ["auth", "logout-all"]},
+            "description": "Cierra sesión en todos los dispositivos del usuario"
+          }
+        }
+      ],
+      "description": "Endpoints de autenticación con renovación automática de tokens y blacklist"
+    },
+    {
+      "name": "📂 Categorías",
+      "item": [
+        {
+          "name": "Listar Categorías",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/categorias?page=1&limit=10&search=&activo=true", "host": ["{{base_url}}"], "path": ["categorias"], "query": [{"key": "page", "value": "1"}, {"key": "limit", "value": "10"}, {"key": "search", "value": ""}, {"key": "activo", "value": "true"}]},
+            "description": "Lista todas las categorías con paginación y filtros"
+          }
+        },
+        {
+          "name": "Crear Categoría",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Electrónicos\",\n  \"descripcion\": \"Dispositivos electrónicos y gadgets\",\n  \"imagenUrl\": \"https://ejemplo.com/electronicos.jpg\"\n}"
+            },
+            "url": {"raw": "{{base_url}}/categorias", "host": ["{{base_url}}"], "path": ["categorias"]},
+            "description": "Crea una nueva categoría"
+          }
+        },
+        {
+          "name": "Obtener Categoría por ID",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/categorias/1", "host": ["{{base_url}}"], "path": ["categorias", "1"]},
+            "description": "Obtiene una categoría específica por ID"
+          }
+        },
+        {
+          "name": "Actualizar Categoría",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Electrónicos Actualizados\",\n  \"descripcion\": \"Descripción actualizada\"\n}"
+            },
+            "url": {"raw": "{{base_url}}/categorias/1", "host": ["{{base_url}}"], "path": ["categorias", "1"]},
+            "description": "Actualiza una categoría existente"
+          }
+        },
+        {
+          "name": "Activar Categoría",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/categorias/1/activar", "host": ["{{base_url}}"], "path": ["categorias", "1", "activar"]},
+            "description": "Activa una categoría"
+          }
+        },
+        {
+          "name": "Desactivar Categoría",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/categorias/1/desactivar", "host": ["{{base_url}}"], "path": ["categorias", "1", "desactivar"]},
+            "description": "Desactiva una categoría"
+          }
+        },
+        {
+          "name": "Eliminar Categoría",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/categorias/1", "host": ["{{base_url}}"], "path": ["categorias", "1"]},
+            "description": "Elimina una categoría (solo si no tiene productos asociados)"
+          }
+        }
+      ],
+      "description": "Gestión completa de categorías"
+    },
+    {
+      "name": "🛍️ Productos",
+      "item": [
+        {
+          "name": "Listar Productos",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/productos?page=1&limit=10&search=&categoria=&activo=true&precioMin=&precioMax=", "host": ["{{base_url}}"], "path": ["productos"], "query": [{"key": "page", "value": "1"}, {"key": "limit", "value": "10"}, {"key": "search", "value": ""}, {"key": "categoria", "value": ""}, {"key": "activo", "value": "true"}, {"key": "precioMin", "value": ""}, {"key": "precioMax", "value": ""}]},
+            "description": "Lista productos con filtros avanzados (búsqueda, categoría, precio, etc.)"
+          }
+        },
+        {
+          "name": "Crear Producto",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idCategoria\": 1,\n  \"nombre\": \"iPhone 15 Pro\",\n  \"descripcion\": \"El último iPhone con características avanzadas\",\n  \"precio\": 999.99,\n  \"stock\": 50,\n  \"imagenUrl\": \"https://ejemplo.com/iphone15.jpg\"\n}"
+            },
+            "url": {"raw": "{{base_url}}/productos", "host": ["{{base_url}}"], "path": ["productos"]},
+            "description": "Crea un nuevo producto"
+          }
+        },
+        {
+          "name": "Obtener Producto por ID",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/productos/1", "host": ["{{base_url}}"], "path": ["productos", "1"]},
+            "description": "Obtiene un producto específico por ID"
+          }
+        },
+        {
+          "name": "Actualizar Producto",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"iPhone 15 Pro Max\",\n  \"precio\": 1099.99,\n  \"stock\": 30\n}"
+            },
+            "url": {"raw": "{{base_url}}/productos/1", "host": ["{{base_url}}"], "path": ["productos", "1"]},
+            "description": "Actualiza un producto existente"
+          }
+        },
+        {
+          "name": "Actualizar Stock",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cantidad\": 100\n}"
+            },
+            "url": {"raw": "{{base_url}}/productos/1/stock", "host": ["{{base_url}}"], "path": ["productos", "1", "stock"]},
+            "description": "Actualiza el stock de un producto"
+          }
+        },
+        {
+          "name": "Activar Producto",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/productos/1/activar", "host": ["{{base_url}}"], "path": ["productos", "1", "activar"]},
+            "description": "Activa un producto"
+          }
+        },
+        {
+          "name": "Desactivar Producto",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/productos/1/desactivar", "host": ["{{base_url}}"], "path": ["productos", "1", "desactivar"]},
+            "description": "Desactiva un producto"
+          }
+        },
+        {
+          "name": "Eliminar Producto",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/productos/1", "host": ["{{base_url}}"], "path": ["productos", "1"]},
+            "description": "Elimina un producto (solo si no tiene pedidos o carrito items asociados)"
+          }
+        }
+      ],
+      "description": "Gestión completa de productos con filtros avanzados"
+    },
+    {
+      "name": "🛒 Carritos",
+      "item": [
+        {
+          "name": "Listar Carritos",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/carritos?page=1&limit=10&usuario=&activo=true", "host": ["{{base_url}}"], "path": ["carritos"], "query": [{"key": "page", "value": "1"}, {"key": "limit", "value": "10"}, {"key": "usuario", "value": ""}, {"key": "activo", "value": "true"}]},
+            "description": "Lista carritos con paginación y filtros"
+          }
+        },
+        {
+          "name": "Crear Carrito",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{}"},
+            "url": {"raw": "{{base_url}}/carritos", "host": ["{{base_url}}"], "path": ["carritos"]},
+            "description": "Crea un nuevo carrito para el usuario autenticado"
+          }
+        },
+        {
+          "name": "Obtener Mi Carrito",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/carritos/mi-carrito", "host": ["{{base_url}}"], "path": ["carritos", "mi-carrito"]},
+            "description": "Obtiene el carrito activo del usuario autenticado"
+          }
+        },
+        {
+          "name": "Obtener Carrito por ID",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/carritos/1", "host": ["{{base_url}}"], "path": ["carritos", "1"]},
+            "description": "Obtiene un carrito específico por ID"
+          }
+        },
+        {
+          "name": "Agregar Producto al Carrito",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": 1,\n  \"quantity\": 2\n}"
+            },
+            "url": {"raw": "{{base_url}}/carritos/item", "host": ["{{base_url}}"], "path": ["carritos", "item"]},
+            "description": "Agrega un producto al carrito del usuario autenticado (crea carrito si no existe)"
+          }
+        },
+        {
+          "name": "Actualizar Cantidad de Item",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 5\n}"
+            },
+            "url": {"raw": "{{base_url}}/carritos/item/1", "host": ["{{base_url}}"], "path": ["carritos", "item", "1"]},
+            "description": "Actualiza la cantidad de un item en el carrito del usuario autenticado"
+          }
+        },
+        {
+          "name": "Eliminar Item del Carrito",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/carritos/item/1", "host": ["{{base_url}}"], "path": ["carritos", "item", "1"]},
+            "description": "Elimina un item específico del carrito del usuario autenticado"
+          }
+        },
+        {
+          "name": "Vaciar Carrito Completo",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/carritos/clear", "host": ["{{base_url}}"], "path": ["carritos", "clear"]},
+            "description": "Vacía completamente el carrito del usuario autenticado"
+          }
+        },
+        {
+          "name": "Vaciar Carrito por ID",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/carritos/1/vaciar", "host": ["{{base_url}}"], "path": ["carritos", "1", "vaciar"]},
+            "description": "Vacía todos los items de un carrito específico por ID"
+          }
+        },
+        {
+          "name": "Activar Carrito",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/carritos/1/activar", "host": ["{{base_url}}"], "path": ["carritos", "1", "activar"]},
+            "description": "Activa un carrito"
+          }
+        },
+        {
+          "name": "Desactivar Carrito",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/carritos/1/desactivar", "host": ["{{base_url}}"], "path": ["carritos", "1", "desactivar"]},
+            "description": "Desactiva un carrito"
+          }
+        },
+        {
+          "name": "Eliminar Carrito",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/carritos/1", "host": ["{{base_url}}"], "path": ["carritos", "1"]},
+            "description": "Elimina un carrito"
+          }
+        }
+      ],
+      "description": "Gestión completa de carritos de compras con endpoints simplificados"
+    },
+    {
+      "name": "🛒 Carrito Items (Legacy)",
+      "item": [
+        {
+          "name": "Listar Items del Carrito",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/carrito-items?page=1&limit=10&carrito=&producto=", "host": ["{{base_url}}"], "path": ["carrito-items"], "query": [{"key": "page", "value": "1"}, {"key": "limit", "value": "10"}, {"key": "carrito", "value": ""}, {"key": "producto", "value": ""}]},
+            "description": "Lista items del carrito con paginación y filtros (endpoint legacy)"
+          }
+        },
+        {
+          "name": "Agregar Producto al Carrito (Legacy)",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idCarrito\": 1,\n  \"idProducto\": 1,\n  \"cantidad\": 2\n}"
+            },
+            "url": {"raw": "{{base_url}}/carrito-items", "host": ["{{base_url}}"], "path": ["carrito-items"]},
+            "description": "Agrega un producto al carrito con cantidad específica (endpoint legacy)"
+          }
+        },
+        {
+          "name": "Agregar Producto al Carrito (Especial)",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"cantidad\": 1\n}"},
+            "url": {"raw": "{{base_url}}/carrito-items/carrito/1/producto/1", "host": ["{{base_url}}"], "path": ["carrito-items", "carrito", "1", "producto", "1"]},
+            "description": "Endpoint especial para agregar producto al carrito por ID"
+          }
+        },
+        {
+          "name": "Obtener Item por ID",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/carrito-items/1", "host": ["{{base_url}}"], "path": ["carrito-items", "1"]},
+            "description": "Obtiene un item específico del carrito por ID"
+          }
+        },
+        {
+          "name": "Actualizar Cantidad (Legacy)",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"cantidad\": 5\n}"},
+            "url": {"raw": "{{base_url}}/carrito-items/1/cantidad", "host": ["{{base_url}}"], "path": ["carrito-items", "1", "cantidad"]},
+            "description": "Actualiza la cantidad de un item en el carrito (endpoint legacy)"
+          }
+        },
+        {
+          "name": "Actualizar Item (Legacy)",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"cantidad\": 3\n}"},
+            "url": {"raw": "{{base_url}}/carrito-items/1", "host": ["{{base_url}}"], "path": ["carrito-items", "1"]},
+            "description": "Actualiza un item del carrito (endpoint legacy)"
+          }
+        },
+        {
+          "name": "Eliminar Item (Legacy)",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/carrito-items/1", "host": ["{{base_url}}"], "path": ["carrito-items", "1"]},
+            "description": "Elimina un item del carrito (endpoint legacy)"
+          }
+        },
+        {
+          "name": "Vaciar Todos los Items (Legacy)",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/carrito-items/clear", "host": ["{{base_url}}"], "path": ["carrito-items", "clear"]},
+            "description": "Elimina todos los items de todos los carritos (endpoint legacy)"
+          }
+        }
+      ],
+      "description": "Endpoints legacy para gestión de items en el carrito (usar endpoints de /carritos/ para nueva funcionalidad)"
+    },
+    {
+      "name": "📦 Pedidos",
+      "item": [
+        {
+          "name": "Listar Pedidos",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/pedidos?page=1&limit=10&usuario=&estado=&fechaInicio=&fechaFin=", "host": ["{{base_url}}"], "path": ["pedidos"], "query": [{"key": "page", "value": "1"}, {"key": "limit", "value": "10"}, {"key": "usuario", "value": ""}, {"key": "estado", "value": ""}, {"key": "fechaInicio", "value": ""}, {"key": "fechaFin", "value": ""}]},
+            "description": "Lista pedidos con filtros avanzados (usuario, estado, fechas)"
+          }
+        },
+        {
+          "name": "Crear Pedido Manual",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"total\": 199.98,\n  \"estado\": \"pendiente\",\n  \"metodoPago\": \"tarjeta\",\n  \"direccionEnvio\": \"Calle Principal 123\",\n  \"notas\": \"Entregar en horario de oficina\"\n}"
+            },
+            "url": {"raw": "{{base_url}}/pedidos", "host": ["{{base_url}}"], "path": ["pedidos"]},
+            "description": "Crea un pedido manualmente"
+          }
+        },
+        {
+          "name": "Crear Pedido desde Carrito",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"metodoPago\": \"tarjeta\",\n  \"direccionEnvio\": \"Calle Principal 123\",\n  \"notas\": \"Entregar en horario de oficina\"\n}"
+            },
+            "url": {"raw": "{{base_url}}/pedidos/desde-carrito/1", "host": ["{{base_url}}"], "path": ["pedidos", "desde-carrito", "1"]},
+            "description": "Crea un pedido automáticamente desde un carrito (recomendado)"
+          }
+        },
+        {
+          "name": "Obtener Mis Pedidos",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/pedidos/mis-pedidos", "host": ["{{base_url}}"], "path": ["pedidos", "mis-pedidos"]},
+            "description": "Obtiene todos los pedidos del usuario autenticado"
+          }
+        },
+        {
+          "name": "Obtener Pedido por ID",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/pedidos/1", "host": ["{{base_url}}"], "path": ["pedidos", "1"]},
+            "description": "Obtiene un pedido específico por ID"
+          }
+        },
+        {
+          "name": "Actualizar Estado del Pedido",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"estado\": \"procesando\"\n}"},
+            "url": {"raw": "{{base_url}}/pedidos/1/estado", "host": ["{{base_url}}"], "path": ["pedidos", "1", "estado"]},
+            "description": "Actualiza el estado de un pedido (pendiente, procesando, completado, cancelado)"
+          }
+        },
+        {
+          "name": "Cancelar Pedido",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/pedidos/1/cancelar", "host": ["{{base_url}}"], "path": ["pedidos", "1", "cancelar"]},
+            "description": "Cancela un pedido (solo si no está completado)"
+          }
+        },
+        {
+          "name": "Actualizar Pedido",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"metodoPago\": \"efectivo\",\n  \"direccionEnvio\": \"Nueva dirección 456\",\n  \"notas\": \"Nuevas instrucciones\"\n}"
+            },
+            "url": {"raw": "{{base_url}}/pedidos/1", "host": ["{{base_url}}"], "path": ["pedidos", "1"]},
+            "description": "Actualiza un pedido existente"
+          }
+        }
+      ],
+      "description": "Gestión completa de pedidos con creación desde carrito"
+    },
+    {
+      "name": "📋 Detalle Pedidos",
+      "item": [
+        {
+          "name": "Listar Detalles de Pedido",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/detalle-pedidos?page=1&limit=10&pedido=&producto=", "host": ["{{base_url}}"], "path": ["detalle-pedidos"], "query": [{"key": "page", "value": "1"}, {"key": "limit", "value": "10"}, {"key": "pedido", "value": ""}, {"key": "producto", "value": ""}]},
+            "description": "Lista detalles de pedidos con paginación y filtros"
+          }
+        },
+        {
+          "name": "Obtener Detalles por Pedido",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/detalle-pedidos/pedido/1", "host": ["{{base_url}}"], "path": ["detalle-pedidos", "pedido", "1"]},
+            "description": "Obtiene todos los detalles de un pedido específico"
+          }
+        },
+        {
+          "name": "Obtener Detalle por ID",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/detalle-pedidos/1", "host": ["{{base_url}}"], "path": ["detalle-pedidos", "1"]},
+            "description": "Obtiene un detalle específico por ID"
+          }
+        },
+        {
+          "name": "Crear Detalle de Pedido",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idPedido\": 1,\n  \"idProducto\": 1,\n  \"cantidad\": 2,\n  \"precioUnitario\": 99.99,\n  \"subtotal\": 199.98\n}"
+            },
+            "url": {"raw": "{{base_url}}/detalle-pedidos", "host": ["{{base_url}}"], "path": ["detalle-pedidos"]},
+            "description": "Crea un detalle de pedido manualmente"
+          }
+        },
+        {
+          "name": "Actualizar Detalle",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"cantidad\": 3,\n  \"subtotal\": 299.97\n}"},
+            "url": {"raw": "{{base_url}}/detalle-pedidos/1", "host": ["{{base_url}}"], "path": ["detalle-pedidos", "1"]},
+            "description": "Actualiza un detalle de pedido (solo si el pedido no está completado/cancelado)"
+          }
+        },
+        {
+          "name": "Eliminar Detalle",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/detalle-pedidos/1", "host": ["{{base_url}}"], "path": ["detalle-pedidos", "1"]},
+            "description": "Elimina un detalle de pedido (solo si el pedido no está completado/cancelado)"
+          }
+        }
+      ],
+      "description": "Gestión de detalles de pedidos"
+    },
+    {
+      "name": "🏥 Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {"raw": "{{base_url}}", "host": ["{{base_url}}"]},
+        "description": "Verifica que el servidor esté corriendo"
+      }
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ]
+}

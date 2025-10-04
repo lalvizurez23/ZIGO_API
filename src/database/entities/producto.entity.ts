@@ -9,9 +9,9 @@ import {
   JoinColumn,
   Index,
 } from 'typeorm';
-import { Categoria } from './categoria.entity';
-import { DetallePedido } from './detalle-pedido.entity';
-import { CarritoItem } from './carrito-item.entity';
+import type { Categoria } from './categoria.entity';
+import type { DetallePedido } from './detalle-pedido.entity';
+import type { CarritoItem } from './carrito-item.entity';
 
 @Entity('producto')
 @Index('IX_productos_nombre', ['nombre'])
@@ -73,29 +73,26 @@ export class Producto {
 
   @CreateDateColumn({
     name: 'fecha_creacion',
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
+    type: 'datetime',
   })
   fechaCreacion: Date;
 
   @UpdateDateColumn({
     name: 'fecha_actualizacion',
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
-    onUpdate: 'CURRENT_TIMESTAMP',
+    type: 'datetime',
   })
   fechaActualizacion: Date;
 
   // Relaciones
-  @ManyToOne(() => Categoria, (categoria) => categoria.productos, {
+  @ManyToOne('Categoria', 'productos', {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'id_categoria' })
   categoria: Categoria;
 
-  @OneToMany(() => DetallePedido, (detalle) => detalle.producto)
+  @OneToMany('DetallePedido', 'producto')
   detallesPedido: DetallePedido[];
 
-  @OneToMany(() => CarritoItem, (item) => item.producto)
+  @OneToMany('CarritoItem', 'producto')
   carritoItems: CarritoItem[];
 }

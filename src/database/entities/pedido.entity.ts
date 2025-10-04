@@ -8,8 +8,8 @@ import {
   JoinColumn,
   Index,
 } from 'typeorm';
-import { Usuario } from './usuario.entity';
-import { DetallePedido } from './detalle-pedido.entity';
+import type { Usuario } from './usuario.entity';
+import type { DetallePedido } from './detalle-pedido.entity';
 
 export enum EstadoPedido {
   PENDIENTE = 'pendiente',
@@ -80,19 +80,19 @@ export class Pedido {
 
   @CreateDateColumn({
     name: 'fecha_pedido',
-    type: 'timestamp',
+    type: 'datetime',
     default: () => 'CURRENT_TIMESTAMP',
   })
   fechaPedido: Date;
 
   // Relaciones
-  @ManyToOne(() => Usuario, (usuario) => usuario.pedidos, {
+  @ManyToOne('Usuario', 'pedidos', {
     onDelete: 'NO ACTION',
   })
   @JoinColumn({ name: 'id_usuario' })
   usuario: Usuario;
 
-  @OneToMany(() => DetallePedido, (detalle) => detalle.pedido, {
+  @OneToMany('DetallePedido', 'pedido', {
     cascade: true,
   })
   detalles: DetallePedido[];

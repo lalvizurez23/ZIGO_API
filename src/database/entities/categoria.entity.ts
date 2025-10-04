@@ -7,7 +7,7 @@ import {
   OneToMany,
   Index,
 } from 'typeorm';
-import { Producto } from './producto.entity';
+import type { Producto } from './producto.entity';
 
 @Entity('categoria')
 @Index('IX_categorias_nombre', ['nombre'])
@@ -49,20 +49,17 @@ export class Categoria {
 
   @CreateDateColumn({
     name: 'fecha_creacion',
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
+    type: 'datetime',
   })
   fechaCreacion: Date;
 
   @UpdateDateColumn({
     name: 'fecha_actualizacion',
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
-    onUpdate: 'CURRENT_TIMESTAMP',
+    type: 'datetime',
   })
   fechaActualizacion: Date;
 
   // Relaciones
-  @OneToMany(() => Producto, (producto) => producto.categoria)
+  @OneToMany('Producto', 'categoria')
   productos: Producto[];
 }

@@ -1,0 +1,88 @@
+# ============================================
+# CONFIGURACIÓN DE BASE DE DATOS
+# ============================================
+
+# Tipo de base de datos (mysql | postgres)
+DB_TYPE=mysql
+
+# Host de la base de datos
+DB_HOST=localhost
+
+# Puerto de la base de datos
+DB_PORT=3306
+
+# Usuario de la base de datos
+DB_USERNAME=root
+
+# Contraseña de la base de datos
+DB_PASSWORD=your_password_here
+
+# Nombre de la base de datos
+DB_DATABASE=zigo_ecommerce
+
+# ============================================
+# CONFIGURACIÓN DE LA APLICACIÓN
+# ============================================
+
+# Puerto en el que corre la aplicación
+PORT=3000
+
+# Entorno de ejecución (development | production)
+NODE_ENV=development
+
+# ============================================
+# CONFIGURACIÓN DE JWT ✅ (REQUERIDO)
+# ============================================
+
+# Secret key para firmar los tokens JWT
+# ⚠️ IMPORTANTE: Esta variable es REQUERIDA. La aplicación NO iniciará sin ella.
+# Genera una clave segura con: node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+# O ejecuta: npm run generate:keys
+JWT_SECRET=your_super_secret_jwt_key_change_this_in_production_minimum_32_characters
+
+# Tiempo de expiración del token (ej: 1h, 24h, 7d)
+# ⚠️ IMPORTANTE: Esta variable es REQUERIDA.
+JWT_EXPIRATION=24h
+
+# Tiempo de extensión para renovación automática (ej: 10m, 30m, 1h)
+# Cuando se renueva un token, se extiende por este tiempo adicional
+JWT_RENEWAL_EXTENSION=10m
+
+# ============================================
+# CONFIGURACIÓN DE REDIS (Para blacklist de tokens)
+# ============================================
+
+# Host de Redis
+REDIS_HOST=localhost
+
+# Puerto de Redis
+REDIS_PORT=6379
+
+# Contraseña de Redis (opcional)
+# REDIS_PASSWORD=your_redis_password
+
+# Base de datos de Redis (0-15)
+REDIS_DB=0
+
+# TTL por defecto para tokens en blacklist (en segundos)
+REDIS_TTL=86400
+
+# ============================================
+# CONFIGURACIÓN DE CORS (Opcional)
+# ============================================
+
+# URL del frontend para permitir CORS
+FRONTEND_URL=http://localhost:5173
+
+# ============================================
+# INSTRUCCIONES DE USO
+# ============================================
+# 1. Copia este archivo como .env en la raíz del proyecto:
+#    cp env-example.txt .env
+# 
+# 2. Edita el archivo .env con tus valores reales
+# 
+# 3. NUNCA subas el archivo .env a Git (ya está en .gitignore)
+# 
+# 4. Para producción, usa variables de entorno del servidor
+

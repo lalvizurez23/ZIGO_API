@@ -9,8 +9,8 @@ import {
   JoinColumn,
   Index,
 } from 'typeorm';
-import { Usuario } from './usuario.entity';
-import { CarritoItem } from './carrito-item.entity';
+import type { Usuario } from './usuario.entity';
+import type { CarritoItem } from './carrito-item.entity';
 
 @Entity('carrito')
 @Index('IX_carrito_usuario', ['idUsuario'])
@@ -30,27 +30,24 @@ export class Carrito {
 
   @CreateDateColumn({
     name: 'fecha_creacion',
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
+    type: 'datetime',
   })
   fechaCreacion: Date;
 
   @UpdateDateColumn({
     name: 'fecha_actualizacion',
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
-    onUpdate: 'CURRENT_TIMESTAMP',
+    type: 'datetime',
   })
   fechaActualizacion: Date;
 
   // Relaciones
-  @ManyToOne(() => Usuario, (usuario) => usuario.carritos, {
+  @ManyToOne('Usuario', 'carritos', {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'id_usuario' })
   usuario: Usuario;
 
-  @OneToMany(() => CarritoItem, (item) => item.carrito, {
+  @OneToMany('CarritoItem', 'carrito', {
     cascade: true,
   })
   items: CarritoItem[];

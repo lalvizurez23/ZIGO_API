@@ -7,8 +7,8 @@ import {
   OneToMany,
   Index,
 } from 'typeorm';
-import { Carrito } from './carrito.entity';
-import { Pedido } from './pedido.entity';
+import type { Carrito } from './carrito.entity';
+import type { Pedido } from './pedido.entity';
 
 @Entity('usuario')
 @Index('IX_usuarios_email', ['email'])
@@ -72,25 +72,23 @@ export class Usuario {
   })
   estaActivo: boolean;
 
+  fechaAgregado: Date;
   @CreateDateColumn({
     name: 'fecha_creacion',
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
+    type: 'datetime',
   })
   fechaCreacion: Date;
 
   @UpdateDateColumn({
     name: 'fecha_actualizacion',
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
-    onUpdate: 'CURRENT_TIMESTAMP',
+    type: 'datetime',
   })
   fechaActualizacion: Date;
 
   // Relaciones
-  @OneToMany(() => Carrito, (carrito) => carrito.usuario)
+  @OneToMany('Carrito', 'usuario')
   carritos: Carrito[];
 
-  @OneToMany(() => Pedido, (pedido) => pedido.usuario)
+  @OneToMany('Pedido', 'usuario')
   pedidos: Pedido[];
 }
