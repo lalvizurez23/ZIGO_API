@@ -2,6 +2,8 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Carrito } from '../../../database/entities/carrito.entity';
+import { CarritoItem } from '../../../database/entities/carrito-item.entity';
+import { Producto } from '../../../database/entities/producto.entity';
 import { Usuario } from '../../../database/entities/usuario.entity';
 import { CreateCarritoDto } from './dto/create-carrito.dto';
 import { UpdateCarritoDto } from './dto/update-carrito.dto';
@@ -11,11 +13,15 @@ export class CarritoService {
   constructor(
     @InjectRepository(Carrito)
     private carritoRepository: Repository<Carrito>,
+    @InjectRepository(CarritoItem)
+    private carritoItemRepository: Repository<CarritoItem>,
+    @InjectRepository(Producto)
+    private productoRepository: Repository<Producto>,
     @InjectRepository(Usuario)
     private usuarioRepository: Repository<Usuario>,
   ) {}
 
-  async create(createCarritoDto: CreateCarritoDto, usuarioId: number): Promise<Carrito> {
+  async create(usuarioId: number): Promise<Carrito> {
     // Verificar que el usuario existe
     const usuario = await this.usuarioRepository.findOne({
       where: { idUsuario: usuarioId },
@@ -39,7 +45,9 @@ export class CarritoService {
 
     try {
       const carrito = this.carritoRepository.create({
-        ...createCarritoDto,
+        estaActivo: true,
+        fechaCreacion: new Date(),
+        fechaActualizacion: new Date(),
         idUsuario: usuarioId,
       });
       return await this.carritoRepository.save(carrito);
@@ -120,11 +128,6 @@ export class CarritoService {
     }
   }
 
-  async remove(id: number): Promise<void> {
-    const carrito = await this.findOne(id);
-    await this.carritoRepository.remove(carrito);
-  }
-
   async activate(id: number): Promise<Carrito> {
     const carrito = await this.findOne(id);
     
@@ -163,5 +166,139 @@ export class CarritoService {
       .execute();
 
     return await this.findOne(id);
+  }
+
+  // Métodos para manejar items del carrito
+  async addItemToCart(cartId: number, productoId: number, cantidad: number): Promise<Carrito> {
+    // Obtener carrito por ID
+    const carrito = await this.findOne(cartId);
+
+    // Verificar que el producto existe y está activo
+    const producto = await this.productoRepository.findOne({
+      where: { idProducto: productoId },
+    });
+
+    if (!producto) {
+      throw new BadRequestException('El producto especificado no existe');
+    }
+
+    if (!producto.estaActivo) {
+      throw new BadRequestException('No se puede agregar un producto inactivo al carrito');
+    }
+
+    // Verificar stock disponible
+    if (cantidad > producto.stock) {
+      throw new BadRequestException('No hay suficiente stock disponible');
+    }
+
+    // Verificar si ya existe un item para este producto en el carrito
+    const itemExistente = await this.carritoItemRepository.findOne({
+      where: {
+        idCarrito: carrito.idCarrito,
+        idProducto: productoId
+      },
+    });
+
+    if (itemExistente) {
+      // Si ya existe, actualizar la cantidad
+      const nuevaCantidad = itemExistente.cantidad + cantidad;
+      
+      // Verificar stock nuevamente
+      if (nuevaCantidad > producto.stock) {
+        throw new BadRequestException('No hay suficiente stock disponible');
+      }
+
+      itemExistente.cantidad = nuevaCantidad;
+      await this.carritoItemRepository.save(itemExistente);
+    } else {
+      // Crear nuevo item
+      const nuevoItem = this.carritoItemRepository.create({
+        idCarrito: carrito.idCarrito,
+        idProducto: productoId,
+        cantidad,
+        fechaAgregado: new Date(),
+      });
+      await this.carritoItemRepository.save(nuevoItem);
+    }
+
+    // Retornar el carrito actualizado
+    return await this.findOne(cartId);
+  }
+
+  async updateItemQuantity(usuarioId: number, itemId: number, cantidad: number): Promise<Carrito> {
+    if (cantidad <= 0) {
+      throw new BadRequestException('La cantidad debe ser mayor a 0');
+    }
+
+    const carrito = await this.findByUsuario(usuarioId);
+    if (!carrito) {
+      throw new NotFoundException('Carrito no encontrado');
+    }
+
+    const item = await this.carritoItemRepository.findOne({
+      where: { 
+        idCarritoItem: itemId,
+        idCarrito: carrito.idCarrito,
+      },
+    });
+
+    if (!item) {
+      throw new NotFoundException('Item del carrito no encontrado');
+    }
+
+    const producto = await this.productoRepository.findOne({
+      where: { idProducto: item.idProducto },
+    });
+
+    if (!producto) {
+      throw new BadRequestException('El producto asociado no existe');
+    }
+
+    if (cantidad > producto.stock) {
+      throw new BadRequestException('No hay suficiente stock disponible');
+    }
+
+    item.cantidad = cantidad;
+    await this.carritoItemRepository.save(item);
+
+    return await this.findByUsuario(usuarioId);
+  }
+
+  async removeItemFromCart(usuarioId: number, itemId: number): Promise<Carrito> {
+    const carrito = await this.findByUsuario(usuarioId);
+    if (!carrito) {
+      throw new NotFoundException('Carrito no encontrado');
+    }
+
+    const item = await this.carritoItemRepository.findOne({
+      where: { 
+        idCarritoItem: itemId,
+        idCarrito: carrito.idCarrito,
+      },
+    });
+
+    if (!item) {
+      throw new NotFoundException('Item del carrito no encontrado');
+    }
+
+    await this.carritoItemRepository.remove(item);
+
+    return await this.findByUsuario(usuarioId);
+  }
+
+  async clearUserCart(usuarioId: number): Promise<Carrito> {
+    const carrito = await this.findByUsuario(usuarioId);
+    if (!carrito) {
+      throw new NotFoundException('Carrito no encontrado');
+    }
+
+    // Eliminar todos los items del carrito
+    await this.carritoItemRepository
+      .createQueryBuilder()
+      .delete()
+      .where('id_carrito = :id', { id: carrito.idCarrito })
+      .execute();
+
+    return await this.findByUsuario(usuarioId);
   }
 }

@@ -7,6 +7,7 @@ import { Usuario } from '../../../database/entities/usuario.entity';
 import { Carrito } from '../../../database/entities/carrito.entity';
 import { CarritoItem } from '../../../database/entities/carrito-item.entity';
 import { DetallePedido } from '../../../database/entities/detalle-pedido.entity';
+import { Producto } from '../../../database/entities/producto.entity';
 import { CreatePedidoDto } from './dto/create-pedido.dto';
 import { UpdatePedidoDto } from './dto/update-pedido.dto';
 
@@ -23,6 +24,8 @@ export class PedidoService {
     private carritoItemRepository: Repository<CarritoItem>,
     @InjectRepository(DetallePedido)
     private detallePedidoRepository: Repository<DetallePedido>,
+    @InjectRepository(Producto)
+    private productoRepository: Repository<Producto>,
     private dataSource: DataSource,
   ) {}
 
@@ -38,12 +41,14 @@ export class PedidoService {
 
     // Generar número de pedido único
     const numeroPedido = await this.generarNumeroPedido();
+    const fechaPedido = new Date();
 
     try {
       const pedido = this.pedidoRepository.create({
         ...createPedidoDto,
         idUsuario: usuarioId,
         numeroPedido,
+        fechaPedido,
       });
       return await this.pedidoRepository.save(pedido);
     } catch (error) {
@@ -229,6 +234,125 @@ export class PedidoService {
 
       await queryRunner.commitTransaction();
 
+      return await this.findOne(pedidoGuardado.idPedido);
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async checkout(
+    usuarioId: number,
+    datosCheckout: {
+      direccionEnvio: string;
+      numeroTarjeta: string;
+      nombreTarjeta: string;
+      fechaExpiracion: string;
+      cvv: string;
+    },
+  ): Promise<Pedido> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      // 1. Obtener el carrito activo del usuario
+      const carrito = await queryRunner.manager.findOne(Carrito, {
+        where: { 
+          idUsuario: usuarioId,
+          estaActivo: true,
+        },
+        relations: ['items', 'items.producto'],
+      });
+
+      if (!carrito) {
+        throw new BadRequestException('No tienes un carrito activo');
+      }
+
+      if (!carrito.items || carrito.items.length === 0) {
+        throw new BadRequestException('El carrito está vacío');
+      }
+
+      // 2. Verificar stock disponible para todos los productos
+      for (const item of carrito.items) {
+        const producto = await queryRunner.manager.findOne(Producto, {
+          where: { idProducto: item.idProducto },
+        });
+
+        if (!producto) {
+          throw new BadRequestException(`Producto ${item.idProducto} no encontrado`);
+        }
+
+        if (!producto.estaActivo) {
+          throw new BadRequestException(`El producto "${producto.nombre}" ya no está disponible`);
+        }
+
+        if (producto.stock < item.cantidad) {
+          throw new BadRequestException(
+            `Stock insuficiente para "${producto.nombre}". Disponible: ${producto.stock}, Solicitado: ${item.cantidad}`
+          );
+        }
+      }
+
+      // 3. Calcular total
+      let total = 0;
+      for (const item of carrito.items) {
+        const precio = typeof item.producto.precio === 'string' 
+          ? parseFloat(item.producto.precio) 
+          : item.producto.precio;
+        total += precio * item.cantidad;
+      }
+
+      // 4. Crear el pedido
+      const numeroPedido = await this.generarNumeroPedido();
+      const pedido = queryRunner.manager.create(Pedido, {
+        idUsuario: usuarioId,
+        numeroPedido,
+        total,
+        estado: EstadoPedido.PENDIENTE,
+        metodoPago: 'Tarjeta de Crédito',
+        direccionEnvio: datosCheckout.direccionEnvio,
+        notas: `Tarjeta terminada en ${datosCheckout.numeroTarjeta.slice(-4)}`,
+      });
+
+      const pedidoGuardado = await queryRunner.manager.save(pedido);
+
+      // 5. Crear los detalles del pedido y actualizar stock
+      for (const item of carrito.items) {
+        const precio = typeof item.producto.precio === 'string' 
+          ? parseFloat(item.producto.precio) 
+          : item.producto.precio;
+
+        // Crear detalle del pedido
+        const detallePedido = queryRunner.manager.create(DetallePedido, {
+          idPedido: pedidoGuardado.idPedido,
+          idProducto: item.idProducto,
+          cantidad: item.cantidad,
+          precioUnitario: precio,
+          subtotal: precio * item.cantidad,
+        });
+
+        await queryRunner.manager.save(detallePedido);
+
+        // Actualizar stock del producto
+        await queryRunner.manager.decrement(
+          Producto,
+          { idProducto: item.idProducto },
+          'stock',
+          item.cantidad
+        );
+      }
+
+      // 6. Vaciar el carrito (eliminar items)
+      await queryRunner.manager.delete(CarritoItem, {
+        idCarrito: carrito.idCarrito,
+      });
+
+      await queryRunner.commitTransaction();
+
+      // Retornar el pedido completo
       return await this.findOne(pedidoGuardado.idPedido);
     } catch (error) {
       await queryRunner.rollbackTransaction();

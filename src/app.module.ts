@@ -8,7 +8,6 @@ import { AuthModule } from './modules/controllers/Auth/auth.module';
 import { CategoriaModule } from './modules/controllers/Categoria/categoria.module';
 import { ProductoModule } from './modules/controllers/Producto/producto.module';
 import { CarritoModule } from './modules/controllers/Carrito/carrito.module';
-import { CarritoItemModule } from './modules/controllers/CarritoItem/carrito-item.module';
 import { PedidoModule } from './modules/controllers/Pedido/pedido.module';
 import { DetallePedidoModule } from './modules/controllers/DetallePedido/detalle-pedido.module';
 
@@ -23,7 +22,6 @@ import { DetallePedidoModule } from './modules/controllers/DetallePedido/detalle
     CategoriaModule,
     ProductoModule,
     CarritoModule,
-    CarritoItemModule,
     PedidoModule,
     DetallePedidoModule,
   ],

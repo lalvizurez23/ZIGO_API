@@ -18,11 +18,11 @@ async function bootstrap() {
     const port = process.env.PORT || 3000;
     await app.listen(port);
     
-    logger.log(`🚀 Aplicación corriendo en: http://localhost:${port}`);
-    logger.log(`📝 Ambiente: ${process.env.NODE_ENV || 'development'}`);
-    logger.log(`💾 Base de datos: ${process.env.DB_TYPE}://${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_DATABASE}`);
+    logger.log(`Aplicación corriendo en: http://localhost:${port}`);
+    logger.log(`Ambiente: ${process.env.NODE_ENV || 'development'}`);
+    logger.log(`Base de datos: ${process.env.DB_TYPE}://${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_DATABASE}`);
   } catch (error) {
-    logger.error('❌ Error al iniciar la aplicación:', error.message);
+    logger.error('Error al iniciar la aplicación:', error.message);
     process.exit(1);
   }
 }

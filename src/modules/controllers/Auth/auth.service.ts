@@ -11,6 +11,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { Usuario } from '../../../database/entities/usuario.entity';
+import { Carrito } from '../../../database/entities/carrito.entity';
 import { TokenBlacklistService } from './services/token-blacklist.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -24,6 +25,8 @@ export class AuthService {
   constructor(
     @InjectRepository(Usuario)
     private readonly usuarioRepository: Repository<Usuario>,
+    @InjectRepository(Carrito)
+    private readonly carritoRepository: Repository<Carrito>,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly tokenBlacklistService: TokenBlacklistService,
@@ -62,7 +65,14 @@ export class AuthService {
       // Guardar en la base de datos
       const savedUser = await this.usuarioRepository.save(newUser);
 
-      this.logger.log(`Nuevo usuario registrado: ${savedUser.email}`);
+      // Crear carrito automáticamente para el nuevo usuario
+      const newCarrito = this.carritoRepository.create({
+        idUsuario: savedUser.idUsuario,
+        estaActivo: true,
+      });
+      await this.carritoRepository.save(newCarrito);
+
+      this.logger.log(`Nuevo usuario registrado: ${savedUser.email} con carrito ID: ${newCarrito.idCarrito}`);
 
       // Generar token JWT
       const accessToken = await this.generateToken(savedUser.idUsuario, savedUser.email);
@@ -71,6 +81,7 @@ export class AuthService {
       return {
         accessToken,
         user: {
+          idUsuario: savedUser.idUsuario,
           email: savedUser.email,
           nombre: savedUser.nombre,
           apellido: savedUser.apellido,
@@ -126,6 +137,7 @@ export class AuthService {
       return {
         accessToken,
         user: {
+          idUsuario: user.idUsuario,
           email: user.email,
           nombre: user.nombre,
           apellido: user.apellido,

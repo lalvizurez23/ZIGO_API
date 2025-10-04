@@ -329,12 +329,56 @@
           }
         },
         {
-          "name": "Vaciar Carrito",
+          "name": "Agregar Producto al Carrito",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": 1,\n  \"quantity\": 2\n}"
+            },
+            "url": {"raw": "{{base_url}}/carritos/item", "host": ["{{base_url}}"], "path": ["carritos", "item"]},
+            "description": "Agrega un producto al carrito del usuario autenticado (crea carrito si no existe)"
+          }
+        },
+        {
+          "name": "Actualizar Cantidad de Item",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 5\n}"
+            },
+            "url": {"raw": "{{base_url}}/carritos/item/1", "host": ["{{base_url}}"], "path": ["carritos", "item", "1"]},
+            "description": "Actualiza la cantidad de un item en el carrito del usuario autenticado"
+          }
+        },
+        {
+          "name": "Eliminar Item del Carrito",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/carritos/item/1", "host": ["{{base_url}}"], "path": ["carritos", "item", "1"]},
+            "description": "Elimina un item específico del carrito del usuario autenticado"
+          }
+        },
+        {
+          "name": "Vaciar Carrito Completo",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/carritos/clear", "host": ["{{base_url}}"], "path": ["carritos", "clear"]},
+            "description": "Vacía completamente el carrito del usuario autenticado"
+          }
+        },
+        {
+          "name": "Vaciar Carrito por ID",
           "request": {
             "method": "POST",
             "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
             "url": {"raw": "{{base_url}}/carritos/1/vaciar", "host": ["{{base_url}}"], "path": ["carritos", "1", "vaciar"]},
-            "description": "Vacía todos los items de un carrito"
+            "description": "Vacía todos los items de un carrito específico por ID"
           }
         },
         {
@@ -365,10 +409,10 @@
           }
         }
       ],
-      "description": "Gestión de carritos de compras"
+      "description": "Gestión completa de carritos de compras con endpoints simplificados"
     },
     {
-      "name": "🛒 Carrito Items",
+      "name": "🛒 Carrito Items (Legacy)",
       "item": [
         {
           "name": "Listar Items del Carrito",
@@ -376,11 +420,11 @@
             "method": "GET",
             "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
             "url": {"raw": "{{base_url}}/carrito-items?page=1&limit=10&carrito=&producto=", "host": ["{{base_url}}"], "path": ["carrito-items"], "query": [{"key": "page", "value": "1"}, {"key": "limit", "value": "10"}, {"key": "carrito", "value": ""}, {"key": "producto", "value": ""}]},
-            "description": "Lista items del carrito con paginación y filtros"
+            "description": "Lista items del carrito con paginación y filtros (endpoint legacy)"
           }
         },
         {
-          "name": "Agregar Producto al Carrito",
+          "name": "Agregar Producto al Carrito (Legacy)",
           "request": {
             "method": "POST",
             "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
@@ -389,7 +433,7 @@
               "raw": "{\n  \"idCarrito\": 1,\n  \"idProducto\": 1,\n  \"cantidad\": 2\n}"
             },
             "url": {"raw": "{{base_url}}/carrito-items", "host": ["{{base_url}}"], "path": ["carrito-items"]},
-            "description": "Agrega un producto al carrito con cantidad específica"
+            "description": "Agrega un producto al carrito con cantidad específica (endpoint legacy)"
           }
         },
         {
@@ -412,36 +456,45 @@
           }
         },
         {
-          "name": "Actualizar Cantidad",
+          "name": "Actualizar Cantidad (Legacy)",
           "request": {
             "method": "PUT",
             "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
             "body": {"mode": "raw", "raw": "{\n  \"cantidad\": 5\n}"},
             "url": {"raw": "{{base_url}}/carrito-items/1/cantidad", "host": ["{{base_url}}"], "path": ["carrito-items", "1", "cantidad"]},
-            "description": "Actualiza la cantidad de un item en el carrito"
+            "description": "Actualiza la cantidad de un item en el carrito (endpoint legacy)"
           }
         },
         {
-          "name": "Actualizar Item",
+          "name": "Actualizar Item (Legacy)",
           "request": {
             "method": "PUT",
             "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
             "body": {"mode": "raw", "raw": "{\n  \"cantidad\": 3\n}"},
             "url": {"raw": "{{base_url}}/carrito-items/1", "host": ["{{base_url}}"], "path": ["carrito-items", "1"]},
-            "description": "Actualiza un item del carrito"
+            "description": "Actualiza un item del carrito (endpoint legacy)"
           }
         },
         {
-          "name": "Eliminar Item",
+          "name": "Eliminar Item (Legacy)",
           "request": {
             "method": "DELETE",
             "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
             "url": {"raw": "{{base_url}}/carrito-items/1", "host": ["{{base_url}}"], "path": ["carrito-items", "1"]},
-            "description": "Elimina un item del carrito"
+            "description": "Elimina un item del carrito (endpoint legacy)"
+          }
+        },
+        {
+          "name": "Vaciar Todos los Items (Legacy)",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/carrito-items/clear", "host": ["{{base_url}}"], "path": ["carrito-items", "clear"]},
+            "description": "Elimina todos los items de todos los carritos (endpoint legacy)"
           }
         }
       ],
-      "description": "Gestión de items en el carrito de compras"
+      "description": "Endpoints legacy para gestión de items en el carrito (usar endpoints de /carritos/ para nueva funcionalidad)"
     },
     {
       "name": "📦 Pedidos",

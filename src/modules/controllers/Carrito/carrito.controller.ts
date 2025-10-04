@@ -17,14 +17,14 @@ import { JwtAuthGuard } from '../Auth/guards/jwt-auth.guard';
 import { GetUser } from '../Auth/decorators/get-user.decorator';
 import { Usuario } from '../../../database/entities/usuario.entity';
 
-@Controller('carritos')
+@Controller('carrito')
 @UseGuards(JwtAuthGuard)
 export class CarritoController {
   constructor(private readonly carritoService: CarritoService) {}
 
   @Post()
-  async create(@Body() createCarritoDto: CreateCarritoDto, @GetUser() user: Usuario) {
-    return await this.carritoService.create(createCarritoDto, user.idUsuario);
+  async create(@GetUser() user: Usuario) {
+    return await this.carritoService.create(user.idUsuario);
   }
 
   @Get()
@@ -67,7 +67,7 @@ export class CarritoController {
 
   @Delete(':id')
   async remove(@Param('id', ParseIntPipe) id: number) {
-    return await this.carritoService.remove(id);
+    return await this.carritoService.deactivate(id);
   }
 
   @Put(':id/activar')
@@ -83,5 +83,30 @@ export class CarritoController {
   @Post(':id/vaciar')
   async vaciar(@Param('id', ParseIntPipe) id: number) {
     return await this.carritoService.vaciar(id);
+  }
+
+  // Endpoints para manejar items del carrito
+  @Post('item')
+  async addItem(@Body() body: { cartId: number; productId: number; quantity: number }, @GetUser() user: Usuario) {
+    return await this.carritoService.addItemToCart(body.cartId, body.productId, body.quantity);
+  }
+
+  @Put('item/:itemId')
+  async updateItem(
+    @Param('itemId', ParseIntPipe) itemId: number,
+    @Body() body: { quantity: number },
+    @GetUser() user: Usuario
+  ) {
+    return await this.carritoService.updateItemQuantity(user.idUsuario, itemId, body.quantity);
+  }
+
+  @Delete('item/:itemId')
+  async removeItem(@Param('itemId', ParseIntPipe) itemId: number, @GetUser() user: Usuario) {
+    return await this.carritoService.removeItemFromCart(user.idUsuario, itemId);
+  }
+
+  @Delete('clear')
+  async clearCart(@GetUser() user: Usuario) {
+    return await this.carritoService.clearUserCart(user.idUsuario);
   }
 }

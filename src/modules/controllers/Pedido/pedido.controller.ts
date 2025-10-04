@@ -93,4 +93,18 @@ export class PedidoController {
       body,
     );
   }
+
+  @Post('checkout')
+  async checkout(
+    @Body() body: { 
+      direccionEnvio: string;
+      numeroTarjeta: string;
+      nombreTarjeta: string;
+      fechaExpiracion: string;
+      cvv: string;
+    },
+    @GetUser() user: Usuario,
+  ) {
+    return await this.pedidoService.checkout(user.idUsuario, body);
+  }
 }

@@ -187,20 +187,144 @@ src/
 - `POST /auth/logout-all` - Cerrar sesión en todos los dispositivos
 - **🔄 Refresh automático** - Todos los endpoints protegidos renuevan tokens automáticamente
 
-### E-commerce
-- `GET /categorias` - Listar categorías
+### Categorías
+- `GET /categorias` - Listar categorías con paginación y filtros
 - `POST /categorias` - Crear categoría
-- `GET /productos` - Listar productos
+- `GET /categorias/:id` - Obtener categoría por ID
+- `PUT /categorias/:id` - Actualizar categoría
+- `PUT /categorias/:id/activar` - Activar categoría
+- `PUT /categorias/:id/desactivar` - Desactivar categoría
+- `DELETE /categorias/:id` - Eliminar categoría
+
+### Productos
+- `GET /productos` - Listar productos con filtros avanzados (búsqueda, categoría, precio)
 - `POST /productos` - Crear producto
-- `GET /carritos` - Listar carritos
-- `POST /carritos` - Crear carrito
-- `GET /pedidos` - Listar pedidos
-- `POST /pedidos` - Crear pedido
+- `GET /productos/:id` - Obtener producto por ID
+- `PUT /productos/:id` - Actualizar producto
+- `PUT /productos/:id/stock` - Actualizar stock del producto
+- `PUT /productos/:id/activar` - Activar producto
+- `PUT /productos/:id/desactivar` - Desactivar producto
+- `DELETE /productos/:id` - Eliminar producto
+
+### Carritos (Nuevos Endpoints Simplificados)
+- `GET /carritos/mi-carrito` - Obtener carrito del usuario autenticado
+- `POST /carritos/item` - Agregar producto al carrito (crea carrito si no existe)
+- `PUT /carritos/item/:itemId` - Actualizar cantidad de item en el carrito
+- `DELETE /carritos/item/:itemId` - Eliminar item del carrito
+- `DELETE /carritos/clear` - Vaciar carrito completo del usuario
+
+### Carritos (Endpoints Administrativos)
+- `GET /carritos` - Listar todos los carritos con paginación
+- `POST /carritos` - Crear carrito manualmente
+- `GET /carritos/:id` - Obtener carrito por ID
+- `PUT /carritos/:id/activar` - Activar carrito
+- `PUT /carritos/:id/desactivar` - Desactivar carrito
+- `POST /carritos/:id/vaciar` - Vaciar carrito por ID
+- `DELETE /carritos/:id` - Eliminar carrito
+
+### Carrito Items (Endpoints Legacy)
+- `GET /carrito-items` - Listar items del carrito con paginación
+- `POST /carrito-items` - Crear item del carrito
+- `GET /carrito-items/:id` - Obtener item por ID
+- `PUT /carrito-items/:id` - Actualizar item del carrito
+- `PUT /carrito-items/:id/cantidad` - Actualizar cantidad del item
+- `DELETE /carrito-items/:id` - Eliminar item del carrito
+- `DELETE /carrito-items/clear` - Vaciar todos los items de todos los carritos
+
+### Pedidos
+- `GET /pedidos` - Listar pedidos con filtros avanzados
+- `POST /pedidos` - Crear pedido manualmente
+- `POST /pedidos/desde-carrito/:carritoId` - Crear pedido desde carrito (recomendado)
+- `GET /pedidos/mis-pedidos` - Obtener pedidos del usuario autenticado
+- `GET /pedidos/:id` - Obtener pedido por ID
+- `PUT /pedidos/:id/estado` - Actualizar estado del pedido
+- `POST /pedidos/:id/cancelar` - Cancelar pedido
+- `PUT /pedidos/:id` - Actualizar pedido
 
 ### Generales
 - `GET /` - Mensaje de bienvenida
 
 **Colección de Postman:** Importa `postman_collection.json` y `postman_environment.json` para probar todos los endpoints.
+
+## 🛒 Funcionalidad del Carrito
+
+### Características Principales
+
+- **Creación Automática**: El carrito se crea automáticamente cuando el usuario agrega su primer producto
+- **Gestión Simplificada**: Endpoints simplificados que manejan automáticamente la lógica del carrito
+- **Validación de Stock**: Verificación automática de stock disponible antes de agregar productos
+- **Actualización de Cantidades**: Suma automática si el producto ya existe en el carrito
+- **Cálculo de Totales**: Cálculo automático del total del carrito
+
+### Flujo de Trabajo del Carrito
+
+1. **Agregar Producto**: `POST /carritos/item`
+   ```json
+   {
+     "productId": 1,
+     "quantity": 2
+   }
+   ```
+   - Crea carrito si no existe
+   - Valida stock disponible
+   - Suma cantidad si producto ya existe
+
+2. **Ver Carrito**: `GET /carritos/mi-carrito`
+   - Retorna carrito completo con items y productos relacionados
+   - Incluye cálculo automático de totales
+
+3. **Actualizar Cantidad**: `PUT /carritos/item/:itemId`
+   ```json
+   {
+     "quantity": 5
+   }
+   ```
+   - Valida stock disponible
+   - Actualiza cantidad del item específico
+
+4. **Eliminar Item**: `DELETE /carritos/item/:itemId`
+   - Elimina item específico del carrito
+
+5. **Vaciar Carrito**: `DELETE /carritos/clear`
+   - Elimina todos los items del carrito del usuario
+
+### Validaciones Implementadas
+
+- ✅ **Stock Disponible**: No permite agregar más cantidad de la disponible
+- ✅ **Productos Activos**: Solo permite agregar productos activos
+- ✅ **Carrito Activo**: Solo permite modificar carritos activos
+- ✅ **Cantidades Válidas**: Cantidad debe ser mayor a 0
+- ✅ **Usuario Autenticado**: Todos los endpoints requieren autenticación
+
+### Estructura de Respuesta del Carrito
+
+```json
+{
+  "idCarrito": 1,
+  "idUsuario": 2,
+  "estaActivo": true,
+  "fechaCreacion": "2024-01-15T10:30:00Z",
+  "fechaActualizacion": "2024-01-15T11:45:00Z",
+  "items": [
+    {
+      "idCarritoItem": 1,
+      "idCarrito": 1,
+      "idProducto": 1,
+      "cantidad": 2,
+      "fechaAgregado": "2024-01-15T10:30:00Z",
+      "producto": {
+        "idProducto": 1,
+        "nombre": "Laptop HP 15-dy2021la",
+        "descripcion": "Laptop HP con procesador Intel Core i5",
+        "precio": 3500.00,
+        "stock": 15,
+        "imagenUrl": "https://via.placeholder.com/400x300?text=Laptop+HP",
+        "estaActivo": true
+      }
+    }
+  ]
+}
+```
 
 ## Tecnologías
 

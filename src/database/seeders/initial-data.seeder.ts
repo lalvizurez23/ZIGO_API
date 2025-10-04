@@ -3,6 +3,7 @@ import * as bcrypt from 'bcrypt';
 import { Usuario } from '../entities/usuario.entity';
 import { Categoria } from '../entities/categoria.entity';
 import { Producto } from '../entities/producto.entity';
+import { Carrito } from '../entities/carrito.entity';
 
 export async function seedInitialData(dataSource: DataSource) {
   console.log('Iniciando seeding de datos iniciales...');
@@ -10,6 +11,7 @@ export async function seedInitialData(dataSource: DataSource) {
   const usuarioRepository = dataSource.getRepository(Usuario);
   const categoriaRepository = dataSource.getRepository(Categoria);
   const productoRepository = dataSource.getRepository(Producto);
+  const carritoRepository = dataSource.getRepository(Carrito);
 
   // ============================================
   // 1. CREAR USUARIOS DE PRUEBA
@@ -40,20 +42,47 @@ export async function seedInitialData(dataSource: DataSource) {
     },
   ];
 
+  const usuariosCreados = [];
   for (const usuarioData of usuarios) {
     const existingUsuario = await usuarioRepository.findOne({
       where: { email: usuarioData.email },
     });
     if (!existingUsuario) {
-      await usuarioRepository.save(usuarioData);
+      const usuario = await usuarioRepository.save(usuarioData);
+      usuariosCreados.push(usuario);
       console.log(`  Usuario creado: ${usuarioData.email}`);
     } else {
+      usuariosCreados.push(existingUsuario);
       console.log(`  Usuario ya existe: ${usuarioData.email}`);
     }
   }
 
   // ============================================
-  // 2. CREAR CATEGORÍAS
+  // 2. CREAR CARRITOS AUTOMÁTICAMENTE PARA CADA USUARIO
+  // ============================================
+  console.log('\nCreando carritos para usuarios...');
+
+  for (const usuario of usuariosCreados) {
+    const existingCarrito = await carritoRepository.findOne({
+      where: { 
+        idUsuario: usuario.idUsuario,
+        estaActivo: true 
+      },
+    });
+    
+    if (!existingCarrito) {
+      const carrito = await carritoRepository.save({
+        idUsuario: usuario.idUsuario,
+        estaActivo: true,
+      });
+      console.log(`  Carrito creado para usuario: ${usuario.email} (ID: ${carrito.idCarrito})`);
+    } else {
+      console.log(`  Carrito ya existe para usuario: ${usuario.email}`);
+    }
+  }
+
+  // ============================================
+  // 3. CREAR CATEGORÍAS
   // ============================================
   console.log('\nCreando categorías...');
 
@@ -100,7 +129,7 @@ export async function seedInitialData(dataSource: DataSource) {
   }
 
   // ============================================
-  // 3. CREAR PRODUCTOS
+  // 4. CREAR PRODUCTOS
   // ============================================
   console.log('\nCreando productos...');
 
