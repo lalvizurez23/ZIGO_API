@@ -18,7 +18,11 @@
     "migration:revert": "npm run typeorm -- migration:revert -d src/config/data-source.ts",
     "migration:create": "typeorm migration:create",
     "seed": "ts-node src/database/seeders/run-seeder.ts",
-    "generate:keys": "node scripts/generate-jwt-keys.js"
+    "generate:keys": "node scripts/generate-jwt-keys.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:cov": "jest --coverage",
+    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand"
   },
   "dependencies": {
     "@nestjs/cache-manager": "^3.0.1",
@@ -47,12 +51,41 @@
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.10",
+    "@nestjs/testing": "^11.1.6",
     "@types/bcrypt": "^6.0.0",
+    "@types/jest": "^29.5.12",
     "@types/node": "^24.6.1",
     "@types/passport-jwt": "^4.0.1",
+    "@types/supertest": "^6.0.2",
+    "jest": "^29.7.0",
     "nodemon": "^3.1.10",
+    "supertest": "^7.0.0",
+    "ts-jest": "^29.1.2",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.9.3"
+  },
+  "jest": {
+    "moduleFileExtensions": ["js", "json", "ts"],
+    "rootDir": ".",
+    "testRegex": ".*\\.spec\\.ts$",
+    "transform": {
+      "^.+\\.(t|j)s$": "ts-jest"
+    },
+    "collectCoverageFrom": [
+      "src/**/*.(t|j)s",
+      "!src/**/*.module.(t|j)s",
+      "!src/**/main.(t|j)s",
+      "!src/**/index.(t|j)s",
+      "!src/**/*.entity.(t|j)s",
+      "!src/**/*.dto.(t|j)s",
+      "!src/**/migrations/**",
+      "!src/**/seeders/**"
+    ],
+    "coverageDirectory": "./coverage",
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+      "^src/(.*)$": "<rootDir>/src/$1"
+    }
   }
 }
