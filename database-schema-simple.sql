@@ -113,7 +113,7 @@ CREATE TABLE carrito_item (
     id_carrito INT NOT NULL,
     id_producto INT NOT NULL,
     cantidad INT NOT NULL DEFAULT 1,
-    fecha_agregado DATETIME DEFAULT CURRENT_TIMESTAMP,
+    fecha_agregado DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     
     -- Foreign Keys
     CONSTRAINT FK_carrito_item_carrito FOREIGN KEY (id_carrito) 
@@ -143,7 +143,7 @@ CREATE TABLE pedido (
     metodo_pago VARCHAR(50) NULL,
     direccion_envio VARCHAR(500) NULL,
     notas VARCHAR(1000) NULL,
-    fecha_pedido DATETIME DEFAULT CURRENT_TIMESTAMP,
+    fecha_pedido DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     
     -- Foreign Key
     CONSTRAINT FK_pedidos_usuario FOREIGN KEY (id_usuario) 
@@ -156,6 +156,8 @@ CREATE TABLE pedido (
 -- Índices
 CREATE INDEX IX_pedidos_usuario ON pedido(id_usuario);
 CREATE INDEX IX_pedidos_fecha ON pedido(fecha_pedido DESC);
+CREATE INDEX IX_pedidos_estado ON pedido(estado);
+CREATE INDEX IX_pedidos_numero ON pedido(numero_pedido);
 GO
 
 -- ============================================
@@ -188,9 +190,20 @@ GO
 -- ============================================
 -- DATOS INICIALES - USUARIOS
 -- ============================================
+-- Nota: Las contraseñas deben ser hasheadas con bcrypt antes de insertar
+-- Ejemplo de hash bcrypt para 'password123': $2a$10$YourHashedPasswordHere
 INSERT INTO usuario (email, password, nombre, apellido, telefono, direccion) VALUES
 ('admin@ecommerce.com', '$2a$10$YourHashedPasswordHere', 'Admin', 'Sistema', '555-0100', 'Ciudad de Guatemala'),
 ('usuario@ejemplo.com', '$2a$10$YourHashedPasswordHere', 'Juan', 'Pérez', '555-0101', 'Zona 10, Guatemala');
+GO
+
+-- ============================================
+-- DATOS INICIALES - CARRITOS
+-- ============================================
+-- Crear carrito activo para cada usuario registrado
+INSERT INTO carrito (id_usuario, esta_activo) VALUES
+(1, 1),  -- Carrito para admin@ecommerce.com
+(2, 1);  -- Carrito para usuario@ejemplo.com
 GO
 
 -- ============================================
@@ -220,8 +233,21 @@ INSERT INTO producto (id_categoria, nombre, descripcion, precio, stock) VALUES
 GO
 
 -- ============================================
+-- NOTAS IMPORTANTES
+-- ============================================
+-- 1. fecha_agregado en carrito_item: Tiene DEFAULT CURRENT_TIMESTAMP para registrar cuándo se agregó cada producto
+-- 2. fecha_pedido en pedido: Tiene DEFAULT CURRENT_TIMESTAMP para registrar cuándo se creó el pedido
+-- 3. Cada usuario debe tener UN carrito activo desde su registro (esta_activo = 1)
+-- 4. El carrito se reutiliza: se vacía después de cada compra pero no se elimina
+-- 5. Los precios en producto y detalle_pedido son DECIMAL(18,2) para precisión monetaria
+-- 6. El stock se decrementa automáticamente al crear un pedido
+-- 7. Las contraseñas DEBEN ser hasheadas con bcrypt (mínimo 10 rounds)
+
+-- ============================================
 -- FIN DEL SCRIPT
 -- ============================================
 SELECT '✅ Schema de base de datos creado exitosamente' AS Mensaje;
-SELECT '📊 Tablas creadas: 7' AS Resumen;
+SELECT '📊 Tablas creadas: 7 (usuario, categoria, producto, carrito, carrito_item, pedido, detalle_pedido)' AS Resumen;
+SELECT '🔐 Recuerda: Hashear contraseñas con bcrypt antes de insertar usuarios' AS Recordatorio;
+SELECT '🛒 Cada usuario debe tener un carrito activo desde el registro' AS Importante;
 
