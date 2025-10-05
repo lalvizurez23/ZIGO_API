@@ -123,6 +123,8 @@ zigo-ecommerce/
 │   │   ├── database/          # Entidades, migraciones, seeders
 │   │   ├── modules/           # Módulos (Auth, Carrito, Pedido, etc.)
 │   │   └── main.ts
+│   ├── test/                  # Pruebas unitarias (Jest)
+│   │   └── services/          # Tests de servicios
 │   ├── Dockerfile
 │   ├── package.json
 │   └── README.md
@@ -196,9 +198,25 @@ zigo-ecommerce/
 - [x] Responsive design
 - [x] Validación en tiempo real
 
-## Pruebas
+## Pruebas Unitarias
 
-### Backend
+### Estructura de Tests
+
+Todos los archivos de prueba están centralizados en la carpeta `test/` para mejor organización:
+
+```
+Backend/
+├── test/
+│   └── services/
+│       ├── auth.service.spec.ts       # 6 tests
+│       ├── carrito.service.spec.ts    # 10 tests
+│       └── pedido.service.spec.ts     # 8 tests
+└── src/
+    └── modules/
+        └── controllers/
+```
+
+### Ejecutar Pruebas
 
 ```bash
 cd Backend
@@ -206,17 +224,91 @@ cd Backend
 # Ejecutar todas las pruebas
 npm test
 
-# Generar reporte de cobertura
+# Ejecutar con cobertura
 npm run test:cov
 
-# Pruebas en modo watch
+# Modo watch (desarrollo)
 npm run test:watch
+
+# Debug de tests
+npm run test:debug
 ```
 
-**Cobertura de pruebas:**
-- AuthService: Registro, login, validación
-- CarritoService: CRUD de items, validación de stock
-- PedidoService: Checkout, transacciones, rollback
+### Cobertura de Pruebas (24 tests)
+
+#### AuthService (6 tests) ✅
+- ✓ Registro exitoso de usuario con hash de contraseña
+- ✓ Creación automática de carrito al registrar
+- ✓ Excepción si email ya existe (ConflictException)
+- ✓ Login exitoso con credenciales válidas
+- ✓ Excepción si usuario no existe (UnauthorizedException)
+- ✓ Excepción si contraseña incorrecta (UnauthorizedException)
+- ✓ Excepción si usuario está inactivo (UnauthorizedException)
+
+#### CarritoService (10 tests) ✅
+**findByUsuario:**
+- ✓ Retorna carrito activo del usuario
+- ✓ Retorna null si no existe carrito activo
+
+**addItemToCart:**
+- ✓ Agrega nuevo item al carrito
+- ✓ Actualiza cantidad si item ya existe
+- ✓ Excepción si producto no existe (BadRequestException)
+- ✓ Excepción si no hay stock suficiente (BadRequestException)
+
+**removeItemFromCart:**
+- ✓ Elimina item del carrito correctamente
+- ✓ Excepción si item no existe (NotFoundException)
+
+**clearUserCart:**
+- ✓ Vacía el carrito del usuario
+- ✓ Excepción si no existe carrito activo (NotFoundException)
+
+#### PedidoService (8 tests) ✅
+**checkout:**
+- ✓ Procesa checkout exitosamente con transacción
+- ✓ Excepción si carrito está vacío (BadRequestException)
+- ✓ Excepción si no hay stock suficiente (BadRequestException)
+- ✓ Rollback automático en caso de error
+
+**findByUsuario:**
+- ✓ Retorna pedidos del usuario ordenados por fecha
+- ✓ Retorna array vacío si no hay pedidos
+
+**findOne:**
+- ✓ Retorna pedido por ID con detalles
+- ✓ Excepción si pedido no existe (NotFoundException)
+
+### Configuración de Jest
+
+El proyecto usa Jest con ts-jest para ejecutar pruebas TypeScript:
+
+```json
+{
+  "rootDir": ".",
+  "testRegex": ".*\\.spec\\.ts$",
+  "moduleNameMapper": {
+    "^src/(.*)$": "<rootDir>/src/$1"
+  }
+}
+```
+
+### Mocks y Testing Utilities
+
+Los tests utilizan:
+- **@nestjs/testing**: TestingModule para DI
+- **Jest mocks**: Para repositorios y servicios externos
+- **bcrypt mocks**: Para simular hash de contraseñas
+- **QueryRunner mocks**: Para transacciones de base de datos
+
+### Resultados
+
+```bash
+Test Suites: 3 passed, 3 total
+Tests:       24 passed, 24 total
+Snapshots:   0 total
+Time:        ~7-9s
+```
 
 ## API Endpoints
 
